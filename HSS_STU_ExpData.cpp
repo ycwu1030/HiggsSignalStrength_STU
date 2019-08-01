@@ -1,4 +1,5 @@
 #include "HSS_STU_ExpData.h"
+#include <iostream>
 
 SignalStrength::SignalStrength()
 {
@@ -34,17 +35,18 @@ int SignalStrength::GetChiSquare(KAPPAS input, double &chisquare)
             {
                 chisquare+=pow((mu - CentralValue[ipro][idec])/DOError[ipro][idec],2);
             }
+            // std::cout<<"ipro "<<ipro<<" idec "<<idec<<" chisquare "<<chisquare<<std::endl;
         }
     }
     return DOF;
 }
 
-CEPC::CEPC()
+mu_CEPC::mu_CEPC()
 {
     SetUpExpData();
 }
 
-void CEPC::SetUpExpData()
+void mu_CEPC::SetUpExpData()
 {
     NProd = 1;
     NDecay = 8;
@@ -81,6 +83,28 @@ double KappaWidth(KAPPAS input)
     return pow(input.kc,2)*brc_SM + pow(input.kb,2)*brb_SM + pow(input.kmuon,2)*brmuon_SM + pow(input.ktau,2)*brtau_SM + pow(input.kw,2)*brW_SM + pow(input.kz,2)*brZ_SM + pow(input.kg,2)*brg_SM + pow(input.kga,2)*brgaga_SM + pow(input.kzga,2)*brZga_SM + brLeft_SM;
 }
 
+double VBF8Kappa(KAPPAS input)
+{
+// 1.210 from W-fusion
+// 0.417 from Z-fusion
+// The HEPfit data;
+    return sqrt((pow(input.kw,2)*1.210 + pow(input.kz,2)*0.417)/(1.210+0.417));
+}
+double VBF13Kappa(KAPPAS input)
+{
+// 1.210 from W-fusion
+// 0.417 from Z-fusion
+// The HEPfit data; No 13 TeV directly data, using 8TeV instead
+    return sqrt((pow(input.kw,2)*1.210 + pow(input.kz,2)*0.417)/(1.210+0.417));
+}
+double VH13Kappa(KAPPAS input)
+{
+// 0.8824 pb for ZH in SM
+// 1.3690 pb for WH in SM
+// Values are taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt13TeV
+    return sqrt((pow(input.kw,2)*1.369 + pow(input.kz,2)*0.8824)/(1.369+0.8824));
+}
+
 double GetKappa(KAPPAS input, int ID)
 {
     switch(ID){
@@ -98,6 +122,9 @@ double GetKappa(KAPPAS input, int ID)
         case iZ: return input.kz;
         case iW: return input.kw;
         case iZA: return input.kzga;
+        case iVBF8: return VBF8Kappa(input);
+        case iVBF13: return VBF13Kappa(input);
+        case iVH13: return VH13Kappa(input);
         case iWid: return KappaWidth(input);
         default: return input.kz;
     }
@@ -125,11 +152,11 @@ int STU_EXP::GetChiSquare(double S, double T, double U, double &chisquare)
     }
     return DOF;
 }
-CEPC_STU::CEPC_STU()
+STU_CEPC::STU_CEPC()
 {
     SetUpExpData();
 }
-void CEPC_STU::SetUpExpData()
+void STU_CEPC::SetUpExpData()
 {
     NObs = 3;
     CentralValue[0] = 0.0;  Sigma[0] = 0.0246;
@@ -148,16 +175,288 @@ void CEPC_STU::SetUpExpData()
 
 }
 
-double ChiSquare95Table[31] = {0,3.841,5.991,7.815,9.488,11.07,12.592,14.067,15.507,16.919,18.307,19.675,21.026,22.362,23.685,24.996,26.296,27.587,28.869,30.144,31.410,32.671,33.924,35.172,36.415,37.652,38.885,40.113,42.557,43.773};
+STU_LHC::STU_LHC()
+{
+    SetUpExpData();
+}
+void STU_LHC::SetUpExpData()
+{
+    NObs = 3;
+    CentralValue[0] = 0.04;  Sigma[0] = 0.11;
+    CentralValue[1] = 0.09;  Sigma[1] = 0.14;
+    CentralValue[2] = -0.02; Sigma[2] = 0.11;
 
-void HiggsSignalStrengthSTU_Test(KAPPAS input, double S, double T, double U, double &chi2mu, double &chi2STU, int &DOF, bool &passed)
+    Rho[0][0] = 1.000;  Rho[0][1] = 0.920;  Rho[0][2] =-0.680;
+    Rho[1][0] = 0.920;  Rho[1][1] = 1.000;  Rho[1][2] =-0.870;
+    Rho[2][0] =-0.680;  Rho[2][1] =-0.870;  Rho[2][2] = 1.000; 
+
+    double det = Rho[0][2]*(Rho[1][1]*Rho[2][0] - Rho[1][0]*Rho[2][1]) + Rho[0][1]*(Rho[1][0]*Rho[2][2]-Rho[1][2]*Rho[2][0]) + Rho[0][0]*(Rho[1][2]*Rho[2][1] - Rho[1][1]*Rho[2][2]);
+
+    SigmaInv[0][0] = (Rho[1][2]*Rho[2][1] - Rho[1][1]*Rho[2][2])/Sigma[0]/Sigma[0]/det; SigmaInv[0][1] = (Rho[0][1]*Rho[2][2]-Rho[0][2]*Rho[2][1])/Sigma[0]/Sigma[1]/det; SigmaInv[0][2] = (Rho[0][2]*Rho[1][1]-Rho[0][1]*Rho[1][2])/Sigma[0]/Sigma[2]/det;
+    SigmaInv[1][0] = (Rho[1][0]*Rho[2][2] - Rho[1][2]*Rho[2][0])/Sigma[0]/Sigma[1]/det; SigmaInv[1][1] = (Rho[0][2]*Rho[2][0]-Rho[0][0]*Rho[2][2])/Sigma[1]/Sigma[1]/det; SigmaInv[1][2] = (Rho[0][0]*Rho[1][2]-Rho[0][2]*Rho[1][0])/Sigma[1]/Sigma[2]/det;
+    SigmaInv[2][0] = (Rho[1][1]*Rho[2][0] - Rho[1][0]*Rho[2][1])/Sigma[0]/Sigma[2]/det; SigmaInv[2][1] = (Rho[0][0]*Rho[2][1]-Rho[0][1]*Rho[2][0])/Sigma[1]/Sigma[2]/det; SigmaInv[2][2] = (Rho[0][1]*Rho[1][0]-Rho[0][0]*Rho[1][1])/Sigma[2]/Sigma[2]/det;
+
+}
+
+STU_ILC::STU_ILC()
+{
+    SetUpExpData();
+}
+void STU_ILC::SetUpExpData()
+{
+    NObs = 3;
+    CentralValue[0] = 0.00;  Sigma[0] = 0.0352;
+    CentralValue[1] = 0.00;  Sigma[1] = 0.0489;
+    CentralValue[2] = 0.00;  Sigma[2] = 0.0376;
+
+    Rho[0][0] = 1.000;  Rho[0][1] = 0.988;  Rho[0][2] =-0.879;
+    Rho[1][0] = 0.988;  Rho[1][1] = 1.000;  Rho[1][2] =-0.909;
+    Rho[2][0] =-0.879;  Rho[2][1] =-0.909;  Rho[2][2] = 1.000; 
+
+    double det = Rho[0][2]*(Rho[1][1]*Rho[2][0] - Rho[1][0]*Rho[2][1]) + Rho[0][1]*(Rho[1][0]*Rho[2][2]-Rho[1][2]*Rho[2][0]) + Rho[0][0]*(Rho[1][2]*Rho[2][1] - Rho[1][1]*Rho[2][2]);
+
+    SigmaInv[0][0] = (Rho[1][2]*Rho[2][1] - Rho[1][1]*Rho[2][2])/Sigma[0]/Sigma[0]/det; SigmaInv[0][1] = (Rho[0][1]*Rho[2][2]-Rho[0][2]*Rho[2][1])/Sigma[0]/Sigma[1]/det; SigmaInv[0][2] = (Rho[0][2]*Rho[1][1]-Rho[0][1]*Rho[1][2])/Sigma[0]/Sigma[2]/det;
+    SigmaInv[1][0] = (Rho[1][0]*Rho[2][2] - Rho[1][2]*Rho[2][0])/Sigma[0]/Sigma[1]/det; SigmaInv[1][1] = (Rho[0][2]*Rho[2][0]-Rho[0][0]*Rho[2][2])/Sigma[1]/Sigma[1]/det; SigmaInv[1][2] = (Rho[0][0]*Rho[1][2]-Rho[0][2]*Rho[1][0])/Sigma[1]/Sigma[2]/det;
+    SigmaInv[2][0] = (Rho[1][1]*Rho[2][0] - Rho[1][0]*Rho[2][1])/Sigma[0]/Sigma[2]/det; SigmaInv[2][1] = (Rho[0][0]*Rho[2][1]-Rho[0][1]*Rho[2][0])/Sigma[1]/Sigma[2]/det; SigmaInv[2][2] = (Rho[0][1]*Rho[1][0]-Rho[0][0]*Rho[1][1])/Sigma[2]/Sigma[2]/det;
+
+}
+
+STU_FCC::STU_FCC()
+{
+    SetUpExpData();
+}
+void STU_FCC::SetUpExpData()
+{
+    NObs = 3;
+    CentralValue[0] = 0.00;  Sigma[0] = 0.0067;
+    CentralValue[1] = 0.00;  Sigma[1] = 0.0053;
+    CentralValue[2] = 0.00;  Sigma[2] = 0.0240;
+
+    Rho[0][0] = 1.000;  Rho[0][1] = 0.812;  Rho[0][2] = 0.001;
+    Rho[1][0] = 0.812;  Rho[1][1] = 1.000;  Rho[1][2] =-0.097;
+    Rho[2][0] = 0.001;  Rho[2][1] =-0.097;  Rho[2][2] = 1.000; 
+
+    double det = Rho[0][2]*(Rho[1][1]*Rho[2][0] - Rho[1][0]*Rho[2][1]) + Rho[0][1]*(Rho[1][0]*Rho[2][2]-Rho[1][2]*Rho[2][0]) + Rho[0][0]*(Rho[1][2]*Rho[2][1] - Rho[1][1]*Rho[2][2]);
+
+    SigmaInv[0][0] = (Rho[1][2]*Rho[2][1] - Rho[1][1]*Rho[2][2])/Sigma[0]/Sigma[0]/det; SigmaInv[0][1] = (Rho[0][1]*Rho[2][2]-Rho[0][2]*Rho[2][1])/Sigma[0]/Sigma[1]/det; SigmaInv[0][2] = (Rho[0][2]*Rho[1][1]-Rho[0][1]*Rho[1][2])/Sigma[0]/Sigma[2]/det;
+    SigmaInv[1][0] = (Rho[1][0]*Rho[2][2] - Rho[1][2]*Rho[2][0])/Sigma[0]/Sigma[1]/det; SigmaInv[1][1] = (Rho[0][2]*Rho[2][0]-Rho[0][0]*Rho[2][2])/Sigma[1]/Sigma[1]/det; SigmaInv[1][2] = (Rho[0][0]*Rho[1][2]-Rho[0][2]*Rho[1][0])/Sigma[1]/Sigma[2]/det;
+    SigmaInv[2][0] = (Rho[1][1]*Rho[2][0] - Rho[1][0]*Rho[2][1])/Sigma[0]/Sigma[2]/det; SigmaInv[2][1] = (Rho[0][0]*Rho[2][1]-Rho[0][1]*Rho[2][0])/Sigma[1]/Sigma[2]/det; SigmaInv[2][2] = (Rho[0][1]*Rho[1][0]-Rho[0][0]*Rho[1][1])/Sigma[2]/Sigma[2]/det;
+
+}
+
+mu_LHC8TeV::mu_LHC8TeV()
+{
+    SetUpExpData();
+}
+void mu_LHC8TeV::SetUpExpData()
+{
+// From 1606.02266
+    NProd = 5;
+    NDecay = 5;
+
+    ProdID[0] = iG;
+    ProdID[1] = iVBF8;
+    ProdID[2] = iW;
+    ProdID[3] = iZ;
+    ProdID[4] = iT;
+
+    DecayID[0] = iA;
+    DecayID[1] = iW;
+    DecayID[2] = iZ;
+    DecayID[3] = iL;
+    DecayID[4] = iB;
+
+    CentralValue[0][0] = 1.10; GoodChannel[0][0] = true;  UPError[0][0] = 0.23; DOError[0][0] = 0.22; //ggF > aa
+    CentralValue[1][0] = 1.30; GoodChannel[1][0] = true;  UPError[1][0] = 0.50; DOError[1][0] = 0.50; //VBF > aa
+    CentralValue[2][0] = 0.50; GoodChannel[2][0] = true;  UPError[2][0] = 1.30; DOError[2][0] = 1.20; //Wh > aa
+    CentralValue[3][0] = 0.50; GoodChannel[3][0] = true;  UPError[3][0] = 3.00; DOError[3][0] = 2.50; //Zh > aa
+    CentralValue[4][0] = 2.20; GoodChannel[4][0] = true;  UPError[4][0] = 1.60; DOError[4][0] = 1.30; //tth > aa
+
+    CentralValue[0][1] = 0.84; GoodChannel[0][1] = true;  UPError[0][1] = 0.17; DOError[0][1] = 0.17; //ggF > WW
+    CentralValue[1][1] = 1.20; GoodChannel[1][1] = true;  UPError[1][1] = 0.40; DOError[1][1] = 0.40; //VBF > WW
+    CentralValue[2][1] = 1.60; GoodChannel[2][1] = true;  UPError[2][1] = 1.20; DOError[2][1] = 1.00; //Wh > WW
+    CentralValue[3][1] = 5.90; GoodChannel[3][1] = true;  UPError[3][1] = 2.60; DOError[3][1] = 2.20; //Zh > WW
+    CentralValue[4][1] = 5.00; GoodChannel[4][1] = true;  UPError[4][1] = 1.80; DOError[4][1] = 1.70; //tth > WW
+
+    CentralValue[0][2] = 1.13; GoodChannel[0][2] = true;  UPError[0][2] = 0.34; DOError[0][2] = 0.31; //ggF > ZZ
+    CentralValue[1][2] = 0.10; GoodChannel[1][2] = true;  UPError[1][2] = 1.10; DOError[1][2] = 0.60; //VBF > ZZ
+    CentralValue[2][2] = 1.00; GoodChannel[2][2] = false; UPError[2][2] = 1.00; DOError[2][2] = 1.00; //Wh > ZZ
+    CentralValue[3][2] = 1.00; GoodChannel[3][2] = false; UPError[3][2] = 1.00; DOError[3][2] = 1.00; //Zh > ZZ
+    CentralValue[4][2] = 1.00; GoodChannel[4][2] = false; UPError[4][2] = 1.00; DOError[4][2] = 1.00; //tth > ZZ
+
+    CentralValue[0][3] = 1.00; GoodChannel[0][3] = true;  UPError[0][3] = 0.60; DOError[0][3] = 0.60; //ggF > ta ta
+    CentralValue[1][3] = 1.30; GoodChannel[1][3] = true;  UPError[1][3] = 0.40; DOError[1][3] = 0.40; //VBF > ta ta
+    CentralValue[2][3] = -1.4; GoodChannel[2][3] = true;  UPError[2][3] = 1.40; DOError[2][3] = 1.40; //Wh > ta ta
+    CentralValue[3][3] = 2.20; GoodChannel[3][3] = true;  UPError[3][3] = 2.20; DOError[3][3] = 1.80; //Zh > ta ta
+    CentralValue[4][3] = -1.9; GoodChannel[4][3] = true;  UPError[4][3] = 3.70; DOError[4][3] = 3.30; //tth > ta ta
+
+    CentralValue[0][4] = 1.00; GoodChannel[0][4] = false; UPError[0][4] = 1.00; DOError[0][4] = 1.00; //ggF > bb
+    CentralValue[1][4] = 1.00; GoodChannel[1][4] = false; UPError[1][4] = 1.00; DOError[1][4] = 1.00; //VBF > bb
+    CentralValue[2][4] = 1.00; GoodChannel[2][4] = true;  UPError[2][4] = 0.50; DOError[2][4] = 0.50; //Wh > bb
+    CentralValue[3][4] = 0.40; GoodChannel[3][4] = true;  UPError[3][4] = 0.40; DOError[3][4] = 0.40; //Zh > bb
+    CentralValue[4][4] = 1.10; GoodChannel[4][4] = true;  UPError[4][4] = 1.00; DOError[4][4] = 1.00; //tth > bb
+}
+
+mu_ATLAS13TeV::mu_ATLAS13TeV()
+{
+    SetUpExpData();
+}
+void mu_ATLAS13TeV::SetUpExpData()
+{
+// From ATLAS-CONF-2018-031 and ATLAS-CONF-2016-112
+    NProd = 4;
+    NDecay = 5;
+
+    ProdID[0] = iG;
+    ProdID[1] = iVBF13;
+    ProdID[2] = iVH13;
+    ProdID[3] = iT;
+
+    DecayID[0] = iA;
+    DecayID[1] = iZ;
+    DecayID[2] = iW;
+    DecayID[3] = iB;
+    DecayID[4] = iL;
+
+    CentralValue[0][0] = 0.97; GoodChannel[0][0] = true;  UPError[0][0] = 0.14; DOError[0][0] = 0.14; //ggF > aa
+    CentralValue[1][0] = 1.42; GoodChannel[1][0] = true;  UPError[1][0] = 0.43; DOError[1][0] = 0.37; //VBF > aa
+    CentralValue[2][0] = 1.09; GoodChannel[2][0] = true;  UPError[2][0] = 0.59; DOError[2][0] = 0.55; //Vh > aa
+    CentralValue[3][0] = 1.14; GoodChannel[3][0] = true;  UPError[3][0] = 0.43; DOError[3][0] = 0.37; //tth > aa
+
+    CentralValue[0][1] = 1.04; GoodChannel[0][1] = true;  UPError[0][1] = 0.17; DOError[0][1] = 0.15; //ggF > ZZ
+    CentralValue[1][1] = 2.96; GoodChannel[1][1] = true;  UPError[1][1] = 0.97; DOError[1][1] = 0.83; //VBF > ZZ
+    CentralValue[2][1] = 0.70; GoodChannel[2][1] = true;  UPError[2][1] = 1.22; DOError[2][1] = 0.79; //Vh > ZZ
+    CentralValue[3][1] = 1.49; GoodChannel[3][1] = true;  UPError[3][1] = 0.60; DOError[3][1] = 0.57; //tth > ZZ
+
+    CentralValue[0][2] = 1.20; GoodChannel[0][2] = true;  UPError[0][2] = 0.20; DOError[0][2] = 0.19; //ggF > WW
+    CentralValue[1][2] = 0.61; GoodChannel[1][2] = true;  UPError[1][2] = 0.37; DOError[1][2] = 0.36; //VBF > WW
+    CentralValue[2][2] = 3.20; GoodChannel[2][2] = true;  UPError[2][2] = 4.40; DOError[2][2] = 4.20; //Vh > WW
+    CentralValue[3][2] = 1.00; GoodChannel[3][2] = false; UPError[3][2] = 1.00; DOError[3][2] = 1.00; //tth > WW
+
+    CentralValue[0][3] = 1.00; GoodChannel[0][3] = false; UPError[0][3] = 1.00; DOError[0][3] = 1.00; //ggF > bb
+    CentralValue[1][3] = 1.00; GoodChannel[1][3] = false; UPError[1][3] = 1.00; DOError[1][3] = 1.00; //VBF > bb
+    CentralValue[2][3] = 1.19; GoodChannel[2][3] = true;  UPError[2][3] = 0.41; DOError[2][3] = 0.36; //Vh > bb
+    CentralValue[3][3] = 0.80; GoodChannel[3][3] = true;  UPError[3][3] = 0.59; DOError[3][3] = 0.60; //tth > bb
+
+    CentralValue[0][4] = 0.97; GoodChannel[0][4] = true;  UPError[0][4] = 0.59; DOError[0][4] = 0.51; //ggF > tata
+    CentralValue[1][4] = 1.16; GoodChannel[1][4] = true;  UPError[1][4] = 0.57; DOError[1][4] = 0.42; //VBF > tata
+    CentralValue[2][4] = 1.00; GoodChannel[2][4] = false; UPError[2][4] = 1.00; DOError[2][4] = 1.00; //Vh > tata
+    CentralValue[3][4] = 1.41; GoodChannel[3][4] = true;  UPError[3][4] = 1.13; DOError[3][4] = 0.97; //tth > tata
+}
+
+mu_CMS13TeV::mu_CMS13TeV()
+{
+    SetUpExpData();
+}
+void mu_CMS13TeV::SetUpExpData()
+{
+// From 1809.10733 Table. 3
+    NProd = 5;
+    NDecay = 6;
+
+    ProdID[0] = iG;
+    ProdID[1] = iVBF13;
+    ProdID[2] = iW;
+    ProdID[3] = iZ;
+    ProdID[4] = iT;
+
+    DecayID[0] = iA;
+    DecayID[1] = iZ;
+    DecayID[2] = iW;
+    DecayID[3] = iL;
+    DecayID[4] = iB;
+    DecayID[5] = iM;
+
+    CentralValue[0][0] = 1.16; GoodChannel[0][0] = true;  UPError[0][0] = 0.21; DOError[0][0] = 0.18; //ggF > aa
+    CentralValue[1][0] = 0.67; GoodChannel[1][0] = true;  UPError[1][0] = 0.59; DOError[1][0] = 0.46; //VBF > aa
+    CentralValue[2][0] = 3.76; GoodChannel[2][0] = true;  UPError[2][0] = 1.48; DOError[2][0] = 1.35; //Wh > aa
+    CentralValue[3][0] = 0.00; GoodChannel[3][0] = true;  UPError[3][0] = 1.14; DOError[3][0] = 0.01; //Zh > aa
+    CentralValue[4][0] = 2.18; GoodChannel[4][0] = true;  UPError[4][0] = 0.88; DOError[4][0] = 0.75; //tth > aa
+
+    CentralValue[0][1] = 1.22; GoodChannel[0][1] = true;  UPError[0][1] = 0.23; DOError[0][1] = 0.21; //ggF > ZZ
+    CentralValue[1][1] =-0.09; GoodChannel[1][1] = true;  UPError[1][1] = 1.02; DOError[1][1] = 0.76; //VBF > ZZ
+    CentralValue[2][1] = 0.00; GoodChannel[2][1] = true;  UPError[2][1] = 2.33; DOError[2][1] = 0.01; //Wh > ZZ
+    CentralValue[3][1] = 0.00; GoodChannel[3][1] = true;  UPError[3][1] = 4.26; DOError[3][1] = 0.01; //Zh > ZZ
+    CentralValue[4][1] = 0.00; GoodChannel[4][1] = true;  UPError[4][1] = 1.50; DOError[4][1] = 0.01; //tth > ZZ
+
+    CentralValue[0][2] = 1.35; GoodChannel[0][2] = true;  UPError[0][2] = 0.21; DOError[0][2] = 0.19; //ggF > WW
+    CentralValue[1][2] = 0.28; GoodChannel[1][2] = true;  UPError[1][2] = 0.64; DOError[1][2] = 0.60; //VBF > WW
+    CentralValue[2][2] = 3.91; GoodChannel[2][2] = true;  UPError[2][2] = 2.26; DOError[2][2] = 2.01; //Wh > WW
+    CentralValue[3][2] = 0.96; GoodChannel[3][2] = true;  UPError[3][2] = 1.81; DOError[3][2] = 1.46; //Zh > WW
+    CentralValue[4][2] = 1.60; GoodChannel[4][2] = true;  UPError[4][2] = 0.65; DOError[4][2] = 0.59; //tth > WW
+
+    CentralValue[0][3] = 1.05; GoodChannel[0][3] = true;  UPError[0][3] = 0.53; DOError[0][3] = 0.47; //ggF > ta ta
+    CentralValue[1][3] = 1.12; GoodChannel[1][3] = true;  UPError[1][3] = 0.45; DOError[1][3] = 0.43; //VBF > ta ta
+    CentralValue[2][3] = 1.00; GoodChannel[2][3] = false; UPError[2][3] = 1.00; DOError[2][3] = 1.00; //Wh > ta ta
+    CentralValue[3][3] = 1.00; GoodChannel[3][3] = false; UPError[3][3] = 1.00; DOError[3][3] = 1.00; //Zh > ta ta
+    CentralValue[4][3] = 0.23; GoodChannel[4][3] = true;  UPError[4][3] = 1.03; DOError[4][3] = 0.88; //tth > ta ta
+
+    CentralValue[0][4] = 2.51; GoodChannel[0][4] = true;  UPError[0][4] = 2.43; DOError[0][4] = 2.01; //ggF > bb
+    CentralValue[1][4] = 1.00; GoodChannel[1][4] = false; UPError[1][4] = 1.00; DOError[1][4] = 1.00; //VBF > bb
+    CentralValue[2][4] = 1.73; GoodChannel[2][4] = true;  UPError[2][4] = 0.70; DOError[2][4] = 0.68; //Wh > bb
+    CentralValue[3][4] = 0.99; GoodChannel[3][4] = true;  UPError[3][4] = 0.47; DOError[3][4] = 0.45; //Zh > bb
+    CentralValue[4][4] = 0.91; GoodChannel[4][4] = true;  UPError[4][4] = 0.45; DOError[4][4] = 0.43; //tth > bb
+
+    CentralValue[0][5] = 0.31; GoodChannel[0][5] = true;  UPError[0][5] = 1.80; DOError[0][5] = 1.79; //ggF > mumu
+    CentralValue[1][5] = 2.72; GoodChannel[1][5] = true;  UPError[1][5] = 7.12; DOError[1][5] = 7.03; //VBF > mumu
+    CentralValue[2][5] = 1.00; GoodChannel[2][5] = false; UPError[2][5] = 1.00; DOError[2][5] = 1.00; //Wh > mumu
+    CentralValue[3][5] = 1.00; GoodChannel[3][5] = false; UPError[3][5] = 1.00; DOError[3][5] = 1.00; //Zh > mumu
+    CentralValue[4][5] = 1.00; GoodChannel[4][5] = false; UPError[4][5] = 1.00; DOError[4][5] = 1.00; //tth > mumu
+
+}
+
+double ChiSquare95Table[61] = {0,3.841,5.991,7.815,9.488,11.07,12.592,14.067,15.507,16.919,18.307,19.675,21.026,22.362,23.685,24.996,26.296,27.587,28.869,30.144,31.410,32.671,33.924,35.172,36.415,37.652,38.885,40.113,42.557,43.773,44.985,46.194,47.400,48.602,49.802,50.998,52.192,53.384,54.572,55.758,56.942,58.124,59.304,60.481,61.656,62.830,64.001,65.171,66.339,67.505,68.669,69.832,70.993,72.153,73.311,74.468,75.624,76.778,77.931,79.082};
+
+void ChiSquare_Test(double chisquare, int DOF, bool &passed)
+{
+    passed = chisquare < ChiSquare95Table[DOF];
+}
+void HiggsSignalStrength_Test(int Exps, KAPPAS input, double &chi2mu, int &DOF, bool &passed)
 {
     DOF = 0;
-    // chisquare = 0.0;
-    // double chisqtemp;
-    DOF+=mu_CEPC.GetChiSquare(input,chi2mu);
-    // chisquare += chisqtemp;
-    DOF+=STU_CEPC.GetChiSquare(S,T,U,chi2STU);
-    // chisquare += chisqtemp;
-    passed = (chi2mu+chi2STU) < ChiSquare95Table[DOF];
+    chi2mu = 0.0;
+    double chisqtemp;
+    for (int i = 0; i < NEXPmu; ++i)
+    {
+        if ((Exps>>i) & 1)
+        {
+            DOF += AllmuExps[i].GetChiSquare(input,chisqtemp);
+            chi2mu += chisqtemp;
+        }
+    }
+    ChiSquare_Test(chi2mu,DOF,passed);
+}
+void STU_Test(int Exps, double S, double T, double U, double &chi2STU, int &DOF, bool &passed)
+{
+   DOF = 0;
+   chi2STU = 0.0;
+   double chisqtemp;
+   for (int i = 0; i < NEXPSTU; ++i)
+   {
+       if ((Exps>>i) & 1)
+       {
+           DOF += AllSTUExps[i].GetChiSquare(S,T,U,chisqtemp);
+           chi2STU += chisqtemp;
+       }
+   }
+   ChiSquare_Test(chi2STU,DOF,passed);
+}
+void HiggsSignalStrengthSTU_Test(int muExps, int STUExps, KAPPAS input, double S, double T, double U, double &chi2mu, double &chi2STU, int &DOF, bool &passed)
+{
+    // DOF = 0;
+    // // chisquare = 0.0;
+    // // double chisqtemp;
+    // DOF+=muExpCEPC.GetChiSquare(input,chi2mu);
+    // // chisquare += chisqtemp;
+    // DOF+=STUExpCEPC.GetChiSquare(S,T,U,chi2STU);
+    // // chisquare += chisqtemp;
+    // passed = (chi2mu+chi2STU) < ChiSquare95Table[DOF];
+    int DOFSTU;
+    int DOFmu;
+    bool mupassed;
+    bool STUpassed;
+    HiggsSignalStrength_Test(muExps,input,chi2mu,DOFmu,mupassed);
+    STU_Test(STUExps,S,T,U,chi2STU,DOFSTU,STUpassed);
+    DOF = DOFSTU + DOFmu;
+    ChiSquare_Test(chi2STU+chi2mu,DOF,passed);
 }

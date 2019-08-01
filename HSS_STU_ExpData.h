@@ -37,9 +37,32 @@ enum ProcID
     iZ = 23,
     iW = 24,
     iZA = 25,
-    // iVBF = 26,
+    iVBF8 = 26,
+    iVBF13 = 27,
+    iVH13 = 28,
     // iVH = 27,
-    iWid = 28
+    iWid = 0
+};
+
+const int NEXPmu = 7;
+enum EXPmu
+{
+    muLHC8 = 1,
+    muATLAS13 = 2,
+    muCMS13 = 4,
+    muHLLHC = 8,
+    muCEPC = 16,
+    muILC = 32,
+    muFCC = 64 
+};
+
+const int NEXPSTU = 4;
+enum EXPSTU
+{
+    STULHC = 1,
+    STUCEPC = 2,
+    STUILC = 4,
+    STUFCC = 8
 };
 
 double GetKappa(KAPPAS input, int ID);
@@ -101,39 +124,69 @@ public:
     double SigmaInv[NMAX][NMAX];
 };
 
-class CEPC_STU:public STU_EXP
+class STU_CEPC:public STU_EXP
 {
 public:
-    CEPC_STU();
-    ~CEPC_STU(){};
+    STU_CEPC();
+    ~STU_CEPC(){};
     void SetUpExpData();
 };
 
-// class LHC8TeV:public SignalStrength
-// {
-// // Ref: 1606.02266
-// public:
-//     LHC8TeV();
-//     ~LHC8TeV();
-// };
-
-// class ATLAS13TeV:public SignalStrength
-// {
-// // ATLAS-CONF-2018-031
-// // ATLAS-CONF-2016-112
-// public:
-//     ATLAS13TeV();
-//     ~ATLAS13TeV();
-// };
-
-// class CMS13TeV:public SignalStrength
-// {
-// // 1809.10733
-// public:
-//     CMS13TeV();
-//     ~CMS13TeV();
+class STU_LHC:public STU_EXP
+{
+public:
+    STU_LHC();
+    ~STU_LHC(){};
+    void SetUpExpData();
     
-// };
+};
+
+class STU_ILC:public STU_EXP
+{
+public:
+    STU_ILC();
+    ~STU_ILC(){};
+    void SetUpExpData();
+    
+};
+
+class STU_FCC:public STU_EXP
+{
+public:
+    STU_FCC();
+    ~STU_FCC(){};
+    void SetUpExpData();
+    
+};
+
+class mu_LHC8TeV:public SignalStrength
+{
+// Ref: 1606.02266
+public:
+    mu_LHC8TeV();
+    ~mu_LHC8TeV(){};
+    void SetUpExpData();
+};
+
+class mu_ATLAS13TeV:public SignalStrength
+{
+// ATLAS-CONF-2018-031
+// ATLAS-CONF-2016-112
+public:
+    mu_ATLAS13TeV();
+    ~mu_ATLAS13TeV(){};
+    void SetUpExpData();
+};
+
+class mu_CMS13TeV:public SignalStrength
+{
+// 1809.10733
+public:
+    mu_CMS13TeV();
+    ~mu_CMS13TeV(){};
+    void SetUpExpData();
+    
+};
 
 // class HLLHC:public SignalStrength
 // {
@@ -152,12 +205,12 @@ public:
 //     ~ILC19();
 // };
 
-class CEPC:public SignalStrength
+class mu_CEPC:public SignalStrength
 {
 // 1811.10545
 public:
-    CEPC();
-    ~CEPC(){};
+    mu_CEPC();
+    ~mu_CEPC(){};
     void SetUpExpData();
 };
 
@@ -170,10 +223,25 @@ public:
 //     ~FCCee();
     
 // };
-CEPC mu_CEPC;
-CEPC_STU STU_CEPC;
+mu_LHC8TeV muExpLHC8;
+mu_ATLAS13TeV muExpATLAS13;
+mu_CMS13TeV muExpCMS13;
+mu_CEPC muExpCEPC;
+SignalStrength NoExp;
 
-void HiggsSignalStrengthSTU_Test(KAPPAS input, double S, double T, double U, double &chi2mu, double &chi2STU, int &DOF, bool &passed);
+SignalStrength AllmuExps[NEXPmu] = {muExpLHC8, muExpATLAS13, muExpCMS13, NoExp, muExpCEPC, NoExp, NoExp};
+
+STU_LHC STUExpLHC;
+STU_CEPC STUExpCEPC;
+STU_ILC STUExpILC;
+STU_FCC STUExpFCC;
+
+STU_EXP AllSTUExps[NEXPSTU] = {STUExpLHC, STUExpCEPC, STUExpILC, STUExpFCC};
+
+void ChiSquare_Test(double chisquare, int DOF, bool &passed);
+void HiggsSignalStrength_Test(int Exps, KAPPAS input, double &chi2mu, int &DOF, bool &passed);
+void STU_Test(int Exps, double S, double T, double U, double &chi2STU, int &DOF, bool &passed);
+void HiggsSignalStrengthSTU_Test(int muExps, int STUExps, KAPPAS input, double S, double T, double U, double &chi2mu, double &chi2STU, int &DOF, bool &passed);
 
 
 #endif
