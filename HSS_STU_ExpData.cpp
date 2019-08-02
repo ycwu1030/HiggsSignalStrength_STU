@@ -18,6 +18,7 @@ int SignalStrength::GetChiSquare(KAPPAS input, double &chisquare)
     double kprod;
     double kdecay;
     double mu;
+    // printf("NP: %d ND: %d\n", NProd,NDecay);
     for (int ipro = 0; ipro < NProd; ++ipro)
     {
         for (int idec = 0; idec < NDecay; ++idec)
@@ -608,6 +609,7 @@ int mu_HLLHC300::GetChiSquare(KAPPAS input, double &chisquare)
             chisquare += pow((mu-CentralValue[ichan][idec])/UPError[ichan][idec],2);
         }
     }
+    // printf("chisquare:%f,DOF:%d\n",chisquare,DOF);
     return DOF;
 }
 
@@ -832,7 +834,7 @@ void HiggsSignalStrength_Test(int Exps, KAPPAS input, double &chi2mu, int &DOF, 
     {
         if ((Exps>>i) & 1)
         {
-            DOF += AllmuExps[i].GetChiSquare(input,chisqtemp);
+            DOF += AllmuExps[i]->GetChiSquare(input,chisqtemp);
             chi2mu += chisqtemp;
         }
     }
@@ -847,7 +849,7 @@ void STU_Test(int Exps, double S, double T, double U, double &chi2STU, int &DOF,
    {
        if ((Exps>>i) & 1)
        {
-           DOF += AllSTUExps[i].GetChiSquare(S,T,U,chisqtemp);
+           DOF += AllSTUExps[i]->GetChiSquare(S,T,U,chisqtemp);
            chi2STU += chisqtemp;
        }
    }

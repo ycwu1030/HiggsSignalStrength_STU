@@ -92,7 +92,7 @@ class SignalStrength
 public:
     SignalStrength();
     ~SignalStrength(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
     virtual int GetChiSquare(KAPPAS input, double &chisquare);// chisquare is returned in argument, while the true return value is the D.O.F
 
     static const int NProcMAX = 10;
@@ -113,8 +113,8 @@ class STU_EXP
 public:
     STU_EXP();
     ~STU_EXP(){};
-    void SetUpExpData();
-    int GetChiSquare(double S, double T, double U, double &chisquare);
+    virtual void SetUpExpData();
+    virtual int GetChiSquare(double S, double T, double U, double &chisquare);
 
     static const int NMAX = 3;
     int DOF;
@@ -130,7 +130,7 @@ class STU_CEPC:public STU_EXP
 public:
     STU_CEPC();
     ~STU_CEPC(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
 };
 
 class STU_LHC:public STU_EXP
@@ -138,7 +138,7 @@ class STU_LHC:public STU_EXP
 public:
     STU_LHC();
     ~STU_LHC(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
     
 };
 
@@ -147,7 +147,7 @@ class STU_ILC:public STU_EXP
 public:
     STU_ILC();
     ~STU_ILC(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
     
 };
 
@@ -156,7 +156,7 @@ class STU_FCC:public STU_EXP
 public:
     STU_FCC();
     ~STU_FCC(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
     
 };
 
@@ -166,7 +166,7 @@ class mu_LHC8TeV:public SignalStrength
 public:
     mu_LHC8TeV();
     ~mu_LHC8TeV(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
 };
 
 class mu_ATLAS13TeV:public SignalStrength
@@ -176,7 +176,7 @@ class mu_ATLAS13TeV:public SignalStrength
 public:
     mu_ATLAS13TeV();
     ~mu_ATLAS13TeV(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
 };
 
 class mu_CMS13TeV:public SignalStrength
@@ -185,7 +185,7 @@ class mu_CMS13TeV:public SignalStrength
 public:
     mu_CMS13TeV();
     ~mu_CMS13TeV(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
     
 };
 
@@ -195,8 +195,8 @@ class mu_HLLHC300:public SignalStrength
 public:
     mu_HLLHC300();
     ~mu_HLLHC300(){};
-    void SetUpExpData();
-    int GetChiSquare(KAPPAS input, double &chisquare);
+    virtual void SetUpExpData();
+    virtual int GetChiSquare(KAPPAS input, double &chisquare);
     
 private:
     int NChannel[NProcMAX];
@@ -209,8 +209,8 @@ class mu_HLLHC3000:public SignalStrength
 public:
     mu_HLLHC3000();
     ~mu_HLLHC3000(){};
-    void SetUpExpData();
-    int GetChiSquare(KAPPAS input, double &chisquare);
+    virtual void SetUpExpData();
+    virtual int GetChiSquare(KAPPAS input, double &chisquare);
     
 private:
     int NChannel[NProcMAX];
@@ -231,7 +231,7 @@ class mu_CEPC:public SignalStrength
 public:
     mu_CEPC();
     ~mu_CEPC(){};
-    void SetUpExpData();
+    virtual void SetUpExpData();
 };
 
 // class FCCee:public SignalStrength
@@ -243,22 +243,22 @@ public:
 //     ~FCCee();
     
 // };
-mu_LHC8TeV muExpLHC8;
-mu_ATLAS13TeV muExpATLAS13;
-mu_CMS13TeV muExpCMS13;
-mu_HLLHC300 muExpHLLHC300;
-mu_HLLHC3000 muExpHLLHC3000;
-mu_CEPC muExpCEPC;
-SignalStrength NoExp;
+// mu_LHC8TeV muExpLHC8;
+// mu_ATLAS13TeV muExpATLAS13;
+// mu_CMS13TeV muExpCMS13;
+// mu_HLLHC300 muExpHLLHC300;
+// mu_HLLHC3000 muExpHLLHC3000;
+// mu_CEPC muExpCEPC;
+// SignalStrength NoExp;
 
-SignalStrength AllmuExps[NEXPmu] = {muExpLHC8, muExpATLAS13, muExpCMS13, muExpHLLHC300, muExpHLLHC3000, muExpCEPC, NoExp, NoExp};
+SignalStrength *AllmuExps[NEXPmu] = {new mu_LHC8TeV(), new mu_ATLAS13TeV(), new mu_CMS13TeV(), new mu_HLLHC300(), new mu_HLLHC3000(), new mu_CEPC(), new SignalStrength(), new SignalStrength()};
 
-STU_LHC STUExpLHC;
-STU_CEPC STUExpCEPC;
-STU_ILC STUExpILC;
-STU_FCC STUExpFCC;
+// STU_LHC STUExpLHC;
+// STU_CEPC STUExpCEPC;
+// STU_ILC STUExpILC;
+// STU_FCC STUExpFCC;
 
-STU_EXP AllSTUExps[NEXPSTU] = {STUExpLHC, STUExpCEPC, STUExpILC, STUExpFCC};
+STU_EXP *AllSTUExps[NEXPSTU] = {new STU_LHC(), new STU_CEPC(), new STU_ILC(), new STU_FCC()};
 
 void ChiSquare_Test(double chisquare, int DOF, bool &passed);
 void HiggsSignalStrength_Test(int Exps, KAPPAS input, double &chi2mu, int &DOF, bool &passed);
