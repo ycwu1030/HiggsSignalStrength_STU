@@ -44,16 +44,17 @@ enum ProcID
     iWid = 0
 };
 
-const int NEXPmu = 7;
+const int NEXPmu = 8;
 enum EXPmu
 {
     muLHC8 = 1,
     muATLAS13 = 2,
     muCMS13 = 4,
-    muHLLHC = 8,
-    muCEPC = 16,
-    muILC = 32,
-    muFCC = 64 
+    muHLLHC300 = 8,
+    muHLLHC3000 = 16,
+    muCEPC = 32,
+    muILC = 64,
+    muFCC = 128 
 };
 
 const int NEXPSTU = 4;
@@ -188,14 +189,33 @@ public:
     
 };
 
-// class HLLHC:public SignalStrength
-// {
-// // JHEP12(2017)153 Table.9
-// public:
-//     HLLHC();
-//     ~HLLHC();
+class mu_HLLHC300:public SignalStrength
+{
+// JHEP12(2017)153 Table.9
+public:
+    mu_HLLHC300();
+    ~mu_HLLHC300(){};
+    void SetUpExpData();
+    int GetChiSquare(KAPPAS input, double &chisquare);
     
-// };
+private:
+    int NChannel[NProcMAX];
+    double Contamination[NProcMAX][NProcMAX][NProcMAX];
+};
+
+class mu_HLLHC3000:public SignalStrength
+{
+// JHEP12(2017)153 Table.9
+public:
+    mu_HLLHC3000();
+    ~mu_HLLHC3000(){};
+    void SetUpExpData();
+    int GetChiSquare(KAPPAS input, double &chisquare);
+    
+private:
+    int NChannel[NProcMAX];
+    double Contamination[NProcMAX][NProcMAX][NProcMAX];
+};
 
 // class ILC19:public SignalStrength
 // {
@@ -226,10 +246,12 @@ public:
 mu_LHC8TeV muExpLHC8;
 mu_ATLAS13TeV muExpATLAS13;
 mu_CMS13TeV muExpCMS13;
+mu_HLLHC300 muExpHLLHC300;
+mu_HLLHC3000 muExpHLLHC3000;
 mu_CEPC muExpCEPC;
 SignalStrength NoExp;
 
-SignalStrength AllmuExps[NEXPmu] = {muExpLHC8, muExpATLAS13, muExpCMS13, NoExp, muExpCEPC, NoExp, NoExp};
+SignalStrength AllmuExps[NEXPmu] = {muExpLHC8, muExpATLAS13, muExpCMS13, muExpHLLHC300, muExpHLLHC3000, muExpCEPC, NoExp, NoExp};
 
 STU_LHC STUExpLHC;
 STU_CEPC STUExpCEPC;

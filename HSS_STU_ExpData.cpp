@@ -13,7 +13,7 @@ void SignalStrength::SetUpExpData()
 int SignalStrength::GetChiSquare(KAPPAS input, double &chisquare)
 {
     chisquare = 0.0;
-    int DOF = 0;
+    DOF = 0;
     double kwid = GetKappa(input,iWid);
     double kprod;
     double kdecay;
@@ -403,6 +403,418 @@ void mu_CMS13TeV::SetUpExpData()
     CentralValue[3][5] = 1.00; GoodChannel[3][5] = false; UPError[3][5] = 1.00; DOError[3][5] = 1.00; //Zh > mumu
     CentralValue[4][5] = 1.00; GoodChannel[4][5] = false; UPError[4][5] = 1.00; DOError[4][5] = 1.00; //tth > mumu
 
+}
+
+mu_HLLHC300::mu_HLLHC300()
+{
+    SetUpExpData();
+}
+void mu_HLLHC300::SetUpExpData()
+{
+    NDecay = 7; // gamma-gamma ZZ WW Z-gamma bb tata mumu
+    NProd = 5; // ggF VBF Wh Zh tth
+    ProdID[0] = iG;
+    ProdID[1] = iVBF13;
+    ProdID[2] = iW;
+    ProdID[3] = iZ;
+    ProdID[4] = iT;
+
+    DecayID[0] = iA;
+    DecayID[1] = iZ;
+    DecayID[2] = iW;
+    DecayID[3] = iZA;
+    DecayID[4] = iB;
+    DecayID[5] = iL;
+    DecayID[6] = iM;
+
+    NChannel[0] = 7; // For gamma-gamma, 7 channels
+    NChannel[1] = 5; // For ZZ, 5 channels
+    NChannel[2] = 4; // For WW, 4 channels
+    NChannel[3] = 1; // For Z-gamma, 1 channel
+    NChannel[4] = 3; // For bb, 3 channels
+    NChannel[5] = 1; // For tata, 1 channel
+    NChannel[6] = 3; // For mumu, 3 channels
+
+
+// First index for channel, second index for decay 
+    UPError[0][0] = 0.09; // comb  gaga
+    UPError[1][0] = 0.12; // 0j gaga
+    UPError[2][0] = 0.14; // 1j gaga
+    UPError[3][0] = 0.43; // VBF-like gaga
+    UPError[4][0] = 0.48; // WH-like gaga
+    UPError[5][0] = 0.85; // ZH-like gaga
+    UPError[6][0] = 0.36; // ttH-like gaga
+
+    UPError[0][1] = 0.07; // comb ZZ
+    UPError[1][1] = 0.34; // VH-like ZZ
+    UPError[2][1] = 0.48; // ttH-like ZZ
+    UPError[3][1] = 0.33; // VBF-like ZZ
+    UPError[4][1] = 0.07; // ggF-like ZZ
+
+    UPError[0][2] = 0.08; // comb WW
+    UPError[1][2] = 0.09; // 0j WW
+    UPError[2][2] = 0.18; // 1j WW
+    UPError[3][2] = 0.20; // VBF-like WW
+
+    UPError[0][3] = 0.44; // incl. Z-ga
+
+    UPError[0][4] = 0.26; // comb bb
+    UPError[1][4] = 0.56; // WH-like bb
+    UPError[2][4] = 0.29; // ZH-like bb
+
+    UPError[0][5] = 0.18; // VBF-like tata
+
+    UPError[0][6] = 0.38; // comb mumu
+    UPError[1][6] = 0.45; // incl. mumu
+    UPError[2][6] = 0.72; // ttH-like mumu
+
+    for (int idec = 0; idec < NDecay; ++idec)
+    {
+        for (int ichan = 0; ichan < NChannel[idec]; ++ichan)
+        {
+            DOError[ichan][idec] = UPError[ichan][idec];
+            CentralValue[ichan][idec] = 1.0;
+            for (int ipro = 0; ipro < NProd; ++ipro)
+            {
+                Contamination[ipro][ichan][idec] = 0.0;
+            }
+        }
+    }
+
+// First channel for Production mode, second for channel, third for decay
+    Contamination[0][0][0] = 49.85/56.92;
+    Contamination[1][0][0] = 4.18/56.92;
+    Contamination[2][0][0] = 1.5/56.92;
+    Contamination[3][0][0] = 0.88/56.92;
+    Contamination[4][0][0] = 0.61/56.92;
+
+    Contamination[0][1][0] = 97.0/100.0;
+    Contamination[1][1][0] = 3.0/100.0;
+
+    Contamination[0][2][0] = 86.0/100.0;
+    Contamination[1][2][0] = 14.0/100.0;
+
+    Contamination[0][3][0] = 0.3;
+    Contamination[1][3][0] = 0.7;
+
+    Contamination[2][4][0] = 72.0/77.0;
+    Contamination[4][4][0] = 5.0/77.0;
+
+    Contamination[2][5][0] = 10.0/102.0;
+    Contamination[3][5][0] = 88.0/102.0;
+    Contamination[4][5][0] = 4.0/102.0;
+
+    Contamination[2][6][0] = 7.0/206.0;
+    Contamination[3][6][0] = 12.0/206.0;
+    Contamination[4][6][0] = 187.0/206.0;
+
+    Contamination[0][0][1] = 49.85/56.92;
+    Contamination[1][0][1] = 4.18/56.92;
+    Contamination[2][0][1] = 1.5/56.92;
+    Contamination[3][0][1] = 0.88/56.92;
+    Contamination[4][0][1] = 0.61/56.92;
+
+    Contamination[0][1][1] = 22.0/72.5;
+    Contamination[1][1][1] = 6.6/72.5;
+    Contamination[2][1][1] = 25.0/72.5;
+    Contamination[3][1][1] = 8.8/72.5;
+    Contamination[4][1][1] = 10.1/72.5;
+
+    Contamination[0][2][1] = 3.1/35.4;
+    Contamination[1][2][1] = 0.6/35.4;
+    Contamination[2][2][1] = 0.6/35.4;
+    Contamination[3][2][1] = 1.1/35.4;
+    Contamination[4][2][1] = 30.0/35.4;
+
+    Contamination[0][3][1] = 41.0/97.1;
+    Contamination[1][3][1] = 54.0/97.1;
+    Contamination[2][3][1] = 0.7/97.1;
+    Contamination[3][3][1] = 0.4/97.1;
+    Contamination[4][3][1] = 1.0/97.1;
+
+    Contamination[0][4][1] = 3380.0/3809.0;
+    Contamination[1][4][1] = 274.0/3809.0;
+    Contamination[2][4][1] = 77.0/3809.0;
+    Contamination[3][4][1] = 53.0/3809.0;
+    Contamination[4][4][1] = 25.0/3809.0;
+
+    Contamination[0][0][2] = 49.85/56.92;
+    Contamination[1][0][2] = 4.18/56.92;
+    Contamination[2][0][2] = 1.5/56.92;
+    Contamination[3][0][2] = 0.88/56.92;
+    Contamination[4][0][2] = 0.61/56.92;
+
+    Contamination[0][1][2] = 4085.0/4184.0;
+    Contamination[1][1][2] = 99.0/4184.0;
+
+    Contamination[0][2][2] = 20050.0/22375.0;
+    Contamination[1][2][2] = 2325.0/22375.0;
+
+    Contamination[0][3][2] = 9.0/59.0;
+    Contamination[1][3][2] = 50.0/59.0;
+
+    Contamination[0][0][3] = 12.79/28.13;
+    Contamination[1][0][3] = 15.34/28.13;
+
+    Contamination[0][0][4] = 49.85/56.92;
+    Contamination[1][0][4] = 4.18/56.92;
+    Contamination[2][0][4] = 1.5/56.92;
+    Contamination[3][0][4] = 0.88/56.92;
+    Contamination[4][0][4] = 0.61/56.92;
+
+    Contamination[0][1][4] = 1.0;
+
+    Contamination[3][2][4] = 560.0/636.0;
+    Contamination[4][2][4] = 76.0/636.0;
+
+    Contamination[0][0][5] = 1641.0/2538.0;
+    Contamination[1][0][5] = 897.0/2538.0;
+
+    Contamination[0][0][6] = 49.85/56.92;
+    Contamination[1][0][6] = 4.18/56.92;
+    Contamination[2][0][6] = 1.5/56.92;
+    Contamination[3][0][6] = 0.88/56.92;
+    Contamination[4][0][6] = 0.61/56.92;
+
+    Contamination[0][1][6] = 1510.0/1725.0;
+    Contamination[1][1][6] = 125.0/1725.0;
+    Contamination[2][1][6] = 45.0/1725.0;
+    Contamination[3][1][6] = 27.0/1725.0;
+    Contamination[4][1][6] = 18.0/1725.0;
+
+    Contamination[4][2][6] = 1.0;
+
+}
+int mu_HLLHC300::GetChiSquare(KAPPAS input, double &chisquare)
+{
+    chisquare = 0.0;
+    DOF = 0;
+    double kwid = GetKappa(input,iWid);
+    double kprod2;
+    double kdecay;
+    double mu;
+    for (int idec = 0; idec < NDecay; ++idec)
+    {
+        for (int ichan = 0; ichan < NChannel[idec]; ++ichan)
+        {
+            kprod2 = 0.0;
+            for (int ipro = 0; ipro < NProd; ++ipro)
+            {
+                kprod2 += Contamination[ipro][ichan][idec]*pow(GetKappa(input,ProdID[ipro]),2);
+            }
+            kdecay = GetKappa(input,DecayID[idec]);
+            mu = kprod2*pow(kdecay,2)/kwid;
+            DOF+=1;
+            chisquare += pow((mu-CentralValue[ichan][idec])/UPError[ichan][idec],2);
+        }
+    }
+    return DOF;
+}
+
+mu_HLLHC3000::mu_HLLHC3000()
+{
+    SetUpExpData();
+}
+void mu_HLLHC3000::SetUpExpData()
+{
+    NDecay = 7; // gamma-gamma ZZ WW Z-gamma bb tata mumu
+    NProd = 5; // ggF VBF Wh Zh tth
+    ProdID[0] = iG;
+    ProdID[1] = iVBF13;
+    ProdID[2] = iW;
+    ProdID[3] = iZ;
+    ProdID[4] = iT;
+
+    DecayID[0] = iA;
+    DecayID[1] = iZ;
+    DecayID[2] = iW;
+    DecayID[3] = iZA;
+    DecayID[4] = iB;
+    DecayID[5] = iL;
+    DecayID[6] = iM;
+
+    NChannel[0] = 7; // For gamma-gamma, 7 channels
+    NChannel[1] = 5; // For ZZ, 5 channels
+    NChannel[2] = 4; // For WW, 4 channels
+    NChannel[3] = 1; // For Z-gamma, 1 channel
+    NChannel[4] = 3; // For bb, 3 channels
+    NChannel[5] = 1; // For tata, 1 channel
+    NChannel[6] = 3; // For mumu, 3 channels
+
+
+// First index for channel, second index for decay 
+    UPError[0][0] = 0.04; // comb  gaga
+    UPError[1][0] = 0.05; // 0j gaga
+    UPError[2][0] = 0.23; // 1j gaga
+    UPError[3][0] = 0.15; // VBF-like gaga
+    UPError[4][0] = 0.17; // WH-like gaga
+    UPError[5][0] = 0.28; // ZH-like gaga
+    UPError[6][0] = 0.12; // ttH-like gaga
+
+    UPError[0][1] = 0.04; // comb ZZ
+    UPError[1][1] = 0.12; // VH-like ZZ
+    UPError[2][1] = 0.20; // ttH-like ZZ
+    UPError[3][1] = 0.16; // VBF-like ZZ
+    UPError[4][1] = 0.04; // ggF-like ZZ
+
+    UPError[0][2] = 0.05; // comb WW
+    UPError[1][2] = 0.05; // 0j WW
+    UPError[2][2] = 0.10; // 1j WW
+    UPError[3][2] = 0.09; // VBF-like WW
+
+    UPError[0][3] = 0.27; // incl. Z-ga
+
+    UPError[0][4] = 0.12; // comb bb
+    UPError[1][4] = 0.36; // WH-like bb
+    UPError[2][4] = 0.13; // ZH-like bb
+
+    UPError[0][5] = 0.15; // VBF-like tata
+
+    UPError[0][6] = 0.12; // comb mumu
+    UPError[1][6] = 0.14; // incl. mumu
+    UPError[2][6] = 0.23; // ttH-like mumu
+
+    for (int idec = 0; idec < NDecay; ++idec)
+    {
+        for (int ichan = 0; ichan < NChannel[idec]; ++ichan)
+        {
+            DOError[ichan][idec] = UPError[ichan][idec];
+            CentralValue[ichan][idec] = 1.0;
+            for (int ipro = 0; ipro < NProd; ++ipro)
+            {
+                Contamination[ipro][ichan][idec] = 0.0;
+            }
+        }
+    }
+
+// First channel for Production mode, second for channel, third for decay
+    Contamination[0][0][0] = 49.85/56.92;
+    Contamination[1][0][0] = 4.18/56.92;
+    Contamination[2][0][0] = 1.5/56.92;
+    Contamination[3][0][0] = 0.88/56.92;
+    Contamination[4][0][0] = 0.61/56.92;
+
+    Contamination[0][1][0] = 97.0/100.0;
+    Contamination[1][1][0] = 3.0/100.0;
+
+    Contamination[0][2][0] = 86.0/100.0;
+    Contamination[1][2][0] = 14.0/100.0;
+
+    Contamination[0][3][0] = 0.4;
+    Contamination[1][3][0] = 0.6;
+
+    Contamination[2][4][0] = 72.0/77.0;
+    Contamination[4][4][0] = 5.0/77.0;
+
+    Contamination[2][5][0] = 10.0/102.0;
+    Contamination[3][5][0] = 88.0/102.0;
+    Contamination[4][5][0] = 4.0/102.0;
+
+    Contamination[2][6][0] = 7.0/206.0;
+    Contamination[3][6][0] = 12.0/206.0;
+    Contamination[4][6][0] = 187.0/206.0;
+
+    Contamination[0][0][1] = 49.85/56.92;
+    Contamination[1][0][1] = 4.18/56.92;
+    Contamination[2][0][1] = 1.5/56.92;
+    Contamination[3][0][1] = 0.88/56.92;
+    Contamination[4][0][1] = 0.61/56.92;
+
+    Contamination[0][1][1] = 22.0/72.5;
+    Contamination[1][1][1] = 6.6/72.5;
+    Contamination[2][1][1] = 25.0/72.5;
+    Contamination[3][1][1] = 8.8/72.5;
+    Contamination[4][1][1] = 10.1/72.5;
+
+    Contamination[0][2][1] = 3.1/35.4;
+    Contamination[1][2][1] = 0.6/35.4;
+    Contamination[2][2][1] = 0.6/35.4;
+    Contamination[3][2][1] = 1.1/35.4;
+    Contamination[4][2][1] = 30.0/35.4;
+
+    Contamination[0][3][1] = 41.0/97.1;
+    Contamination[1][3][1] = 54.0/97.1;
+    Contamination[2][3][1] = 0.7/97.1;
+    Contamination[3][3][1] = 0.4/97.1;
+    Contamination[4][3][1] = 1.0/97.1;
+
+    Contamination[0][4][1] = 3380.0/3809.0;
+    Contamination[1][4][1] = 274.0/3809.0;
+    Contamination[2][4][1] = 77.0/3809.0;
+    Contamination[3][4][1] = 53.0/3809.0;
+    Contamination[4][4][1] = 25.0/3809.0;
+
+    Contamination[0][0][2] = 49.85/56.92;
+    Contamination[1][0][2] = 4.18/56.92;
+    Contamination[2][0][2] = 1.5/56.92;
+    Contamination[3][0][2] = 0.88/56.92;
+    Contamination[4][0][2] = 0.61/56.92;
+
+    Contamination[0][1][2] = 4085.0/4184.0;
+    Contamination[1][1][2] = 99.0/4184.0;
+
+    Contamination[0][2][2] = 20050.0/22375.0;
+    Contamination[1][2][2] = 2325.0/22375.0;
+
+    Contamination[0][3][2] = 9.0/59.0;
+    Contamination[1][3][2] = 50.0/59.0;
+
+    Contamination[0][0][3] = 12.79/28.13;
+    Contamination[1][0][3] = 15.34/28.13;
+
+    Contamination[0][0][4] = 49.85/56.92;
+    Contamination[1][0][4] = 4.18/56.92;
+    Contamination[2][0][4] = 1.5/56.92;
+    Contamination[3][0][4] = 0.88/56.92;
+    Contamination[4][0][4] = 0.61/56.92;
+
+    Contamination[0][1][4] = 1.0;
+
+    Contamination[3][2][4] = 560.0/636.0;
+    Contamination[4][2][4] = 76.0/636.0;
+
+    Contamination[0][0][5] = 1641.0/2538.0;
+    Contamination[1][0][5] = 897.0/2538.0;
+
+    Contamination[0][0][6] = 49.85/56.92;
+    Contamination[1][0][6] = 4.18/56.92;
+    Contamination[2][0][6] = 1.5/56.92;
+    Contamination[3][0][6] = 0.88/56.92;
+    Contamination[4][0][6] = 0.61/56.92;
+
+    Contamination[0][1][6] = 1510.0/1725.0;
+    Contamination[1][1][6] = 125.0/1725.0;
+    Contamination[2][1][6] = 45.0/1725.0;
+    Contamination[3][1][6] = 27.0/1725.0;
+    Contamination[4][1][6] = 18.0/1725.0;
+
+    Contamination[4][2][6] = 1.0;
+
+}
+int mu_HLLHC3000::GetChiSquare(KAPPAS input, double &chisquare)
+{
+    chisquare = 0.0;
+    DOF = 0;
+    double kwid = GetKappa(input,iWid);
+    double kprod2;
+    double kdecay;
+    double mu;
+    for (int idec = 0; idec < NDecay; ++idec)
+    {
+        for (int ichan = 0; ichan < NChannel[idec]; ++ichan)
+        {
+            kprod2 = 0.0;
+            for (int ipro = 0; ipro < NProd; ++ipro)
+            {
+                kprod2 += Contamination[ipro][ichan][idec]*pow(GetKappa(input,ProdID[ipro]),2);
+            }
+            kdecay = GetKappa(input,DecayID[idec]);
+            mu = kprod2*pow(kdecay,2)/kwid;
+            DOF+=1;
+            chisquare += pow((mu-CentralValue[ichan][idec])/UPError[ichan][idec],2);
+        }
+    }
+    return DOF;
 }
 
 double ChiSquare95Table[61] = {0,3.841,5.991,7.815,9.488,11.07,12.592,14.067,15.507,16.919,18.307,19.675,21.026,22.362,23.685,24.996,26.296,27.587,28.869,30.144,31.410,32.671,33.924,35.172,36.415,37.652,38.885,40.113,42.557,43.773,44.985,46.194,47.400,48.602,49.802,50.998,52.192,53.384,54.572,55.758,56.942,58.124,59.304,60.481,61.656,62.830,64.001,65.171,66.339,67.505,68.669,69.832,70.993,72.153,73.311,74.468,75.624,76.778,77.931,79.082};
