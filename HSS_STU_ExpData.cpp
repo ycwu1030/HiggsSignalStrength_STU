@@ -79,6 +79,144 @@ void mu_CEPC::SetUpExpData()
     }
 }
 
+mu_ILC::mu_ILC()
+{
+    SetUpExpData();
+}
+
+void mu_ILC::SetUpExpData()
+{
+    NProd = 5;
+    NDecay = 8;
+    ProdID[0] = iZ; // Zh @ 250
+    ProdID[1] = iZ; // Zh @ 350
+    ProdID[2] = iW; // vvh @ 350
+    ProdID[3] = iZ; // Zh @ 500
+    ProdID[4] = iW; // vvh @ 500
+    DecayID[0] = iB;
+    DecayID[1] = iC;
+    DecayID[2] = iG;
+    DecayID[3] = iW;
+    DecayID[4] = iL;
+    DecayID[5] = iZ;
+    DecayID[6] = iA;
+    DecayID[7] = iM;
+
+    UPError[0][0] = 0.0046;
+    UPError[0][1] = 0.029;
+    UPError[0][2] = 0.025;
+    UPError[0][3] = 0.016;
+    UPError[0][4] = 0.011;
+    UPError[0][5] = 0.064;
+    UPError[0][6] = 0.12;
+    UPError[0][7] = 0.255;
+
+    UPError[1][0] = 0.017;
+    UPError[1][1] = 0.123;
+    UPError[1][2] = 0.094;
+    UPError[1][3] = 0.063;
+    UPError[1][4] = 0.045;
+    UPError[1][5] = 0.28;
+    UPError[1][6] = 0.436;
+    UPError[1][7] = 0.973;
+
+    UPError[2][0] = 0.02;
+    UPError[2][1] = 0.212;
+    UPError[2][2] = 0.086;
+    UPError[2][3] = 0.064;
+    UPError[2][4] = 0.179;
+    UPError[2][5] = 0.224;
+    UPError[2][6] = 0.503;
+    UPError[2][7] = 1.789;
+
+    UPError[3][0] = 0.0063;
+    UPError[3][1] = 0.045;
+    UPError[3][2] = 0.038;
+    UPError[3][3] = 0.019;
+    UPError[3][4] = 0.015;
+    UPError[3][5] = 0.088;
+    UPError[3][6] = 0.12;
+    UPError[3][7] = 0.3;
+
+    UPError[4][0] = 0.0023;
+    UPError[4][1] = 0.022;
+    UPError[4][2] = 0.015;
+    UPError[4][3] = 0.0085;
+    UPError[4][4] = 0.025;
+    UPError[4][5] = 0.03;
+    UPError[4][6] = 0.068;
+    UPError[4][7] = 0.25;
+    for (int ipro = 0; ipro < NProd; ++ipro)
+    {
+        for (int idec = 0; idec < NDecay; ++idec)
+        {
+            CentralValue[ipro][idec] = 1.0;
+            DOError[ipro][idec] = UPError[ipro][idec];
+            GoodChannel[ipro][idec] = true;
+        }
+    }
+}
+
+mu_FCCee::mu_FCCee()
+{
+    SetUpExpData();
+}
+
+void mu_FCCee::SetUpExpData()
+{
+    NProd = 3;
+    NDecay = 8;
+    ProdID[0] = iZ; // Zh @ 250
+    ProdID[1] = iZ; // Zh @ 365
+    ProdID[2] = iW; // vvh @ 365
+    DecayID[0] = iB;
+    DecayID[1] = iC;
+    DecayID[2] = iG;
+    DecayID[3] = iW;
+    DecayID[4] = iL;
+    DecayID[5] = iZ;
+    DecayID[6] = iA;
+    DecayID[7] = iM;
+
+    UPError[0][0] = 0.003;
+    UPError[0][1] = 0.022;
+    UPError[0][2] = 0.019;
+    UPError[0][3] = 0.012;
+    UPError[0][4] = 0.009;
+    UPError[0][5] = 0.044;
+    UPError[0][6] = 0.09;
+    UPError[0][7] = 0.19;
+
+    UPError[1][0] = 0.005;
+    UPError[1][1] = 0.065;
+    UPError[1][2] = 0.035;
+    UPError[1][3] = 0.026;
+    UPError[1][4] = 0.018;
+    UPError[1][5] = 0.12;
+    UPError[1][6] = 0.18;
+    UPError[1][7] = 0.4;
+
+    UPError[2][0] = 0.009;
+    UPError[2][1] = 0.1;
+    UPError[2][2] = 0.045;
+    UPError[2][3] = 0.03;
+    UPError[2][4] = 0.08;
+    UPError[2][5] = 0.1;
+    UPError[2][6] = 0.22;
+    UPError[2][7] = -1;
+
+    for (int ipro = 0; ipro < NProd; ++ipro)
+    {
+        for (int idec = 0; idec < NDecay; ++idec)
+        {
+            CentralValue[ipro][idec] = 1.0;
+            DOError[ipro][idec] = UPError[ipro][idec];
+            GoodChannel[ipro][idec] = true;
+        }
+    }
+    GoodChannel[2][7] = false;
+}
+
 double KappaWidth(KAPPAS input)
 {
     return pow(input.kc,2)*brc_SM + pow(input.kb,2)*brb_SM + pow(input.kmuon,2)*brmuon_SM + pow(input.ktau,2)*brtau_SM + pow(input.kw,2)*brW_SM + pow(input.kz,2)*brZ_SM + pow(input.kg,2)*brg_SM + pow(input.kga,2)*brgaga_SM + pow(input.kzga,2)*brZga_SM + brLeft_SM;

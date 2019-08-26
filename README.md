@@ -11,6 +11,8 @@ The chi-square test of Higgs signal strength and Oblique parameters (S/T/U)
 - CMS 13 TeV Higgs Signal Strength Precisions: [arXiv: 1809.10733](https://arxiv.org/abs/1809.10733)
 - HL-LHC precision for 300 and 3000 ifb: [ATL-PHYS-PUB-2012-004](https://cds.cern.ch/record/1484890), [ATL-PHYS-PUB-2013-014](https://cds.cern.ch/record/1611186), [ATL-PHYS-PUB-2014-006](http://cdsweb.cern.ch/record/1703276), [ATL-PHYS-PUB-2014-011](http://cds.cern.ch/record/1740962), [ATL-PHYS-PUB-2014-012](http://cdsweb.cern.ch/record/1741011), [ATL-PHYS-PUB-2014-016](http://cdsweb.cern.ch/record/1956710), [ATL-PHYS-PUB-2014-018](https://cds.cern.ch/record/1956732) and [arXiv: 1507.03568](https://arxiv.org/abs/1507.03568)
 - CEPC Higgs Signal Strength Precisions: [arXiv: 1811.10545](https://arxiv.org/abs/1811.10545)
+- ILC Higgs Signal Strength Precisions: [arXiv: 1903.01629](https://arxiv.org/abs/1903.01629)
+- FCC-ee Higgs Signal Strength Precisions: [INSPIRE 1713705](https://inspirehep.net/record/1713705) and [INSPIRE 1713706](https://inspirehep.net/record/1713706)
 
 
 ### Oblique Parameters

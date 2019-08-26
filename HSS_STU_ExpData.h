@@ -217,13 +217,14 @@ private:
     double Contamination[NProcMAX][NProcMAX][NProcMAX];
 };
 
-// class ILC19:public SignalStrength
-// {
-// // 1903.01629
-// public:
-//     ILC19();
-//     ~ILC19();
-// };
+class mu_ILC:public SignalStrength
+{
+// 1903.01629
+public:
+    mu_ILC();
+    ~mu_ILC(){};
+    virtual void SetUpExpData();
+};
 
 class mu_CEPC:public SignalStrength
 {
@@ -234,15 +235,15 @@ public:
     virtual void SetUpExpData();
 };
 
-// class FCCee:public SignalStrength
-// {
-// // INSPIRE-1713706
-// // INSPIRE-1713705
-// public:
-//     FCCee();
-//     ~FCCee();
-    
-// };
+class mu_FCCee:public SignalStrength
+{
+// INSPIRE-1713706
+// INSPIRE-1713705
+public:
+    mu_FCCee();
+    ~mu_FCCee(){};
+    virtual void SetUpExpData();  
+};
 // mu_LHC8TeV muExpLHC8;
 // mu_ATLAS13TeV muExpATLAS13;
 // mu_CMS13TeV muExpCMS13;
@@ -251,7 +252,7 @@ public:
 // mu_CEPC muExpCEPC;
 // SignalStrength NoExp;
 
-SignalStrength *AllmuExps[NEXPmu] = {new mu_LHC8TeV(), new mu_ATLAS13TeV(), new mu_CMS13TeV(), new mu_HLLHC300(), new mu_HLLHC3000(), new mu_CEPC(), new SignalStrength(), new SignalStrength()};
+SignalStrength *AllmuExps[NEXPmu] = {new mu_LHC8TeV(), new mu_ATLAS13TeV(), new mu_CMS13TeV(), new mu_HLLHC300(), new mu_HLLHC3000(), new mu_CEPC(), new mu_ILC(), new mu_FCCee()};
 
 // STU_LHC STUExpLHC;
 // STU_CEPC STUExpCEPC;
